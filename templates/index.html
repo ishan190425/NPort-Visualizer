@@ -19,6 +19,7 @@
         <h1 class="text-3xl font-bold text-center text-purple-400">N-Port Holdings Lookup</h1>
         <p class="text-center text-gray-400 mt-2">Current Date: {{ current_date }}</p>
         
+        
         <form method="POST" class="mt-4 flex flex-col gap-4">
             <label for="cik" class="text-gray-300">Enter Fund CIK:</label>
             <input type="text" id="cik" name="cik" value="{{ cik }}" required class="p-2 rounded-md bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-purple-500">
@@ -37,6 +38,9 @@
         </div>
         {% endif %}
     </div>
+    {% if fund_name %}
+        <h1 class="text-2xl text-center text-purple-400 text-lg font-semibold">Fund: {{ fund_name }}</h1>
+    {% endif %}
 
     {% if holdings %}
     <div class="w-full max-w-4xl mt-8">
