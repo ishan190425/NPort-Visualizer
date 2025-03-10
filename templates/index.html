@@ -57,7 +57,7 @@
                         <td class="p-3 border border-gray-700">{{ holding.cusip }}</td>
                         <td class="p-3 border border-gray-700">{{ holding.title }}</td>
                         <td class="p-3 border border-gray-700">{{ holding.balance }}</td>
-                        <td class="p-3 border border-gray-700">{{ holding.value }}</td>
+                        <td class="p-3 border border-gray-700">${{ "{:,.2f}".format(holding.value) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -90,8 +90,14 @@
                     responsive: true,
                     plugins: {
                         legend: {
-                            labels: {
-                                color: "#e0e0e0"
+                            display: false  // Hides the legend, hover will show tooltips
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    let value = tooltipItem.raw;
+                                    return `$${value.toLocaleString()}`;  // Formats with commas and $
+                                }
                             }
                         }
                     }
