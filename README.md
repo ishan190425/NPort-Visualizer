@@ -44,6 +44,8 @@ A Flask-based web application that allows users to look up **N-Port filings** fr
 The application is hosted on **Render**.  
 Check it out here: **[LIVE DEMO LINK](https://nport-visualizer-prod.onrender.com/)**  
 
+Example CIK: 0000884394
+
 ---
 
 🚀 **Enjoy tracking your favorite fund holdings with N-Port Lookup!** 🎯
