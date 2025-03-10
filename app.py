@@ -5,7 +5,8 @@ from datetime import datetime
 from flask_caching import Cache
 import logging
 import time
-import re  # Added for regex processing
+import re 
+import os
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ cache = Cache(app)
 
 # SEC API Headers
 HEADERS = {
-    "User-Agent": "Ishan Rathi (rathiishan0@gmail.com)",  # Replace with your real info
+    "User-Agent": "Ishan Rathi (rathiishan0@gmail.com)",
     "Accept": "application/json"
 }
 
@@ -175,5 +176,9 @@ def index():
     
     return render_template("index.html", holdings=holdings, error=error, cik=cik, current_date=datetime.now().strftime("%Y-%m-%d"))
 
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Default to 5000 if PORT is not set
+    app.run(host="0.0.0.0", port=port, debug=True)
+
