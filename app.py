@@ -27,6 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def get_latest_nport_url(cik):
     cik = cik.zfill(10)  # Ensure CIK is 10 digits
     json_url = f"https://data.sec.gov/submissions/CIK{cik}.json"
+    fund_name = "No Fund Found"
 
     try:
         time.sleep(1)  # Avoid rate limiting
@@ -34,11 +35,11 @@ def get_latest_nport_url(cik):
         
         if response.status_code == 403:
             logging.error("403 Forbidden - SEC blocked access. Check User-Agent headers.")
-            return None, "SEC API access denied. Try again later."
+            return None, "SEC API access denied. Try again later.", "None"
 
         response.raise_for_status()
         data = response.json()
-        fund_name = data.get('name', 'Unknown Fund')  # Default if name not found
+        fund_name = data.get('name', "No Fund Found")  # Default if name not found
 
 
         filings = data.get("filings", {}).get("recent", {})
