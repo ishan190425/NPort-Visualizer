@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Port Holdings Lookup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center p-6 min-h-screen">
+    <div class="w-full max-w-2xl bg-gray-900 p-6 rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold text-center text-purple-400">N-Port Holdings Lookup</h1>
+        <p class="text-center text-gray-400 mt-2">Current Date: {{ current_date }}</p>
+        
+        <form method="POST" class="mt-4 flex flex-col gap-4">
+            <label for="cik" class="text-gray-300">Enter Fund CIK:</label>
+            <input type="text" id="cik" name="cik" value="{{ cik }}" required class="p-2 rounded-md bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-purple-500">
+            <label for="sort_by" class="text-gray-300">Sort By:</label>
+            <select id="sort_by" name="sort_by" class="p-2 rounded-md bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-purple-500">
+                <option value="value">Value (USD)</option>
+                <option value="balance">Balance</option>
+                <option value="title">Title/Name</option>
+            </select>
+            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md transition">Lookup Holdings</button>
+        </form>
+
+        {% if error %}
+        <div class="bg-red-600 text-white p-4 rounded-lg mt-4">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if holdings %}
+    <div class="w-full max-w-4xl mt-8">
+        <h2 class="text-2xl font-semibold text-purple-400 text-center">Holdings from Most Recent N-Port Filing</h2>
+        <div class="overflow-x-auto mt-4">
+            <table class="min-w-full border border-gray-700">
+                <thead>
+                    <tr class="bg-gray-800 text-gray-300">
+                        <th class="p-3 border border-gray-700">CUSIP</th>
+                        <th class="p-3 border border-gray-700">Title/Name</th>
+                        <th class="p-3 border border-gray-700">Balance</th>
+                        <th class="p-3 border border-gray-700">Value (USD)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for holding in holdings %}
+                    <tr class="bg-gray-900 hover:bg-gray-800 transition">
+                        <td class="p-3 border border-gray-700">{{ holding.cusip }}</td>
+                        <td class="p-3 border border-gray-700">{{ holding.title }}</td>
+                        <td class="p-3 border border-gray-700">{{ holding.balance }}</td>
+                        <td class="p-3 border border-gray-700">{{ holding.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="w-full max-w-4xl mt-8">
+        <h2 class="text-2xl font-semibold text-purple-400 text-center">Portfolio Allocation</h2>
+        <canvas id="holdingsChart" class="mt-4"></canvas>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById("holdingsChart").getContext("2d");
+            var holdingsData = {
+                labels: [{% for holding in holdings %} "{{ holding.title }}", {% endfor %}],
+                datasets: [{
+                    label: "Value (USD)",
+                    data: [{% for holding in holdings %} {{ holding.value }}, {% endfor %}],
+                    backgroundColor: ["#6366F1", "#9333EA", "#D946EF", "#F43F5E", "#F59E0B", "#84CC16", "#14B8A6"],
+                    borderColor: "#ffffff",
+                    borderWidth: 1
+                }]
+            };
+            new Chart(ctx, {
+                type: "pie",
+                data: holdingsData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "#e0e0e0"
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
