@@ -1,0 +1,6 @@
+Flask==3.0.0
+requests==2.31.0
+xmltodict==0.13.0
+Flask-Caching==2.0.2
+gunicorn==21.2.0  # Required for production deployment
+
