@@ -38,6 +38,8 @@ def get_latest_nport_url(cik):
 
         response.raise_for_status()
         data = response.json()
+        fund_name = data.get('name', 'Unknown Fund')  # Default if name not found
+
 
         filings = data.get("filings", {}).get("recent", {})
         if not filings:
@@ -77,23 +79,23 @@ def get_latest_nport_url(cik):
             for file in index_data.get("directory", {}).get("item", []):
                 if file["name"].endswith(".xml"):
                     xml_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{formatted_accession}/{file['name']}"
-                    return xml_url, None
+                    return xml_url, None, fund_name
 
-            return None, "NPORT XML file not found in the filing directory."
+            return None, "NPORT XML file not found in the filing directory.", fund_name
 
-        return None, "No NPORT-P filings found in recent submissions."
+        return None, "No NPORT-P filings found in recent submissions.", fund_name
 
     except requests.exceptions.Timeout:
         logging.error("Request to SEC API timed out.")
-        return None, "SEC API is taking too long to respond. Try again later."
+        return None, "SEC API is taking too long to respond. Try again later.", fund_name
 
     except requests.exceptions.RequestException as e:
         logging.error(f"Request error: {e}")
-        return None, "There was a problem fetching data from the SEC. Try again later."
+        return None, "There was a problem fetching data from the SEC. Try again later.", fund_name
 
     except ValueError as e:
         logging.error(f"JSON parsing error: {e}")
-        return None, "Error processing SEC data. Please try again."
+        return None, "Error processing SEC data. Please try again.", fund_name
 
 @cache.memoize(timeout=3600)  # Cache parsed holdings for 1 hour
 def parse_nport_holdings(xml_url, sort_by="value"):
@@ -151,7 +153,7 @@ def index():
     holdings = None
     error = None
     cik = ""  # Default empty CIK value
-    
+    fund_name = ""
     if request.method == "POST":
         cik = request.form.get("cik").strip()
         sort_by = request.form.get("sort_by", "value")
@@ -163,7 +165,7 @@ def index():
             error = "Please enter a valid CIK"
         else:
             cik = cik.zfill(10)
-            xml_url, fetch_error = get_latest_nport_url(cik)
+            xml_url, fetch_error, fund_name = get_latest_nport_url(cik)
             
             if fetch_error:
                 error = fetch_error
@@ -174,7 +176,7 @@ def index():
             else:
                 error = "Could not find recent N-Port filing for this CIK"
     
-    return render_template("index.html", holdings=holdings, error=error, cik=cik, current_date=datetime.now().strftime("%Y-%m-%d"))
+    return render_template("index.html", holdings=holdings, error=error, cik=cik, fund_name=fund_name, current_date=datetime.now().strftime("%Y-%m-%d"))
 
 
 
